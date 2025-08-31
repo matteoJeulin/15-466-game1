@@ -123,6 +123,11 @@ const game_objs = [
 	maek.CPP('GL.cpp')
 ];
 
+const utility_objs = [
+  maek.CPP('parse_ppm.cpp')
+];
+const utility_exe = maek.LINK(utility_objs, 'parsing/parse_ppm');
+
 //the '[exeFile =] LINK(objFiles, exeFileBase, [, options])' links an array of objects into an executable:
 // objFiles: array of objects to link
 // exeFileBase: name of executable file to produce
@@ -130,7 +135,7 @@ const game_objs = [
 const game_exe = maek.LINK(game_objs, 'dist/game');
 
 //set the default target to the game (and copy the readme files):
-maek.TARGETS = [game_exe, ...copies];
+maek.TARGETS = [game_exe, utility_exe, ...copies];
 
 //======================================================================
 //Now, onward to the code that makes all this work:
