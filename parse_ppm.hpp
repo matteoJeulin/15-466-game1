@@ -2,23 +2,17 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 #include <stdint.h>
-#include <fstream>
+#include <map>
 
 #include "PPU466.hpp"
-#include "data_path.hpp"
-#include "read_write_chunk.hpp"
+#include "Sprites.hpp"
 
-#define RED 0
-#define GREEN 1
-#define BLUE 2
-#define ALPHA 3
-
-struct PPM_Parser {
-
-    std::vector< PPU466::Palette > palettes;
-    std::vector< PPU466::Tile > tiles;
+struct PPM_Parser
+{
+    std::vector<PPU466::Palette> palette_table;
+    std::vector<PPU466::Tile> tile_table;
+    std::vector<Sprite::TileRef> tile_refs;
 
     uint8_t chunk_size = 8;
 
@@ -27,4 +21,7 @@ struct PPM_Parser {
 
     // Takes a given PPM P3 image, parses it and writes the resulting data to out (file name)
     void parse_image(std::string const &filename, std::string const &out);
+
+    // Parse every image in a given directory
+    void parse_directory(std::string const &filename);
 };

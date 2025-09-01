@@ -1,60 +1,48 @@
 #include "Sprites.hpp"
-#include <read_write_chunk.hpp>
-#include <fstream>
 
+#include <filesystem>
+#include <fstream>
 #include <vector>
+
+#include "read_write_chunk.hpp"
+#include "PPU466.hpp"
+
+
+Sprite Sprite::load(std::string const &filename)
+{
+
+    std::ifstream file(filename, std::ios::binary);
+
+    Sprite sprite;
+
+    read_chunk(file, "refs", &sprite.tiles);
+
+    sprite.name = std::filesystem::path(filename).stem();
+
+    return sprite;
+}
+
+void Sprite::draw(int32_t x, int32_t y) const {
+
+}
 
 Sprites Sprites::load(std::string const &filename)
 {
-    std::ifstream file(filename, std::ios::binary);
-
-    std::vector<char> names;
-    std::vector<Sprite::TileRef> refs;
-    struct StoredSprite
-    {
-        uint32_t name_begin, name_end;
-        uint32_t refs_begin, refs_end;
-    };
-    std::vector<StoredSprite> sprites;
-
-    read_chunk(file, "name", &names);
-    read_chunk(file, "refs", &refs);
-    read_chunk(file, "sprt", &sprites);
-
-    char junk;
-    if (file.read(&junk, 1))
-    {
-        throw std::runtime_error("Trailing junk at the end of the file");
-    }
-
     Sprites ret;
-
-    for (StoredSprite const &stored : sprites)
+    // Load all the sprites in a directory
+    for (const auto &entry : std::filesystem::recursive_directory_iterator(filename))
     {
-        if (!(stored.name_begin < stored.name_end && stored.name_end <= uint32_t(names.size())))
-        {
-            throw std::runtime_error("Sprite with bad name range.");
-        }
-        if (!(stored.refs_begin < stored.refs_end && stored.refs_end <= uint32_t(refs.size())))
-        {
-            throw std::runtime_error("Sprite with bad refs range.");
-        }
-
-        std::string name(
-            names.begin() + stored.name_begin,
-            names.begin() + stored.name_end);
-        Sprite sprite;
-
-        sprite.tiles.assign(
-            refs.begin() + stored.refs_begin,
-            refs.end() + stored.refs_end);
-
-        auto result = ret.sprites.emplace(name, sprite);
-        if (!result.second)
-        {
-            throw std::runtime_error("Two sprites with the same name ('" + name + "')");
-        }
+        ret.sprites.emplace(entry.path().stem(), Sprite::load(entry.path()));
     }
-
     return ret;
 }
+
+Sprite const &Sprites::lookup(std::string const &name) {
+    return sprites.at(name);
+}
+
+// int main()
+// {
+//     Sprite sprite;
+//     sprite.load("parsing/sprites/player.ppu");
+// }
