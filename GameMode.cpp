@@ -90,8 +90,14 @@ GameMode::GameMode()
 	ppu.sprites[PLAYER].index = sprites.value->sprites.at("player").tiles[0].tile_index;
 	ppu.sprites[PLAYER].attributes = sprites.value->sprites.at("player").tiles[0].palette_index;
 
+	std::cout << int(ppu.sprites[PLAYER].index) << std::endl;
+	std::cout << int(ppu.sprites[PLAYER].attributes) << std::endl;
+
 	ppu.sprites[PLAYER_UP].index = sprites.value->sprites.at("player_up").tiles[0].tile_index;
 	ppu.sprites[PLAYER_UP].attributes = sprites.value->sprites.at("player_up").tiles[0].palette_index;
+
+	std::cout << int(ppu.sprites[PLAYER_UP].index) << std::endl;
+	std::cout << int(ppu.sprites[PLAYER_UP].attributes) << std::endl;
 
 	ppu.sprites[PLAYER_DOWN].index = sprites.value->sprites.at("player_down").tiles[0].tile_index;
 	ppu.sprites[PLAYER_DOWN].attributes = sprites.value->sprites.at("player_down").tiles[0].palette_index;
@@ -121,55 +127,53 @@ GameMode::GameMode()
 	for (unsigned int i = 0; i < ppu.BackgroundWidth * ppu.BackgroundHeight; i++)
 	{
 		ppu.background[i] = 12 + (4 << 8);
-		std::cout << ppu.background[i] << std::endl;
 		// std::cout << sprites.value->sprites.at("background").tiles[0].tile_index << std::endl;
 		// i = (i + 1) % 13;
 	}
 
-	for (size_t j = 0; j < 13; j ++){
-		std::cout << " Tile : " << j << std::endl;
-		for (int i = 7; i >= 0; i--)
-		{
-			std::bitset<8> x(int(ppu.tile_table[j].bit1[i]));
-			std::bitset<8> y(int(ppu.tile_table[j].bit0[i]));
-			for (int k = 0; k < 8; k++) {
-				int palette_index = (x[k] << 1) + y[k];
-				if (palette_index == 0) {
-					std::cout << ANSI_COLOR_GREEN;
-				}
-				if (palette_index == 1) {
-					std::cout << ANSI_COLOR_BLUE;
-				}
-				if (palette_index == 2) {
-					std::cout << ANSI_COLOR_RED;
-				}
-				if (palette_index == 3) {
-					std::cout << ANSI_COLOR_MAGENTA;
-				}
-				// std::cout << x[k] << y[k] << " " << ANSI_COLOR_RESET;
-				std::cout << "◼" << " " << ANSI_COLOR_RESET;;
-			}
-			std::cout << std::endl;
-		}
-	}
+	// for (size_t j = 0; j < 13; j ++){
+	// 	std::cout << " Tile : " << j << std::endl;
+	// 	for (int i = 7; i >= 0; i--)
+	// 	{
+	// 		std::bitset<8> x(int(ppu.tile_table[j].bit1[i]));
+	// 		std::bitset<8> y(int(ppu.tile_table[j].bit0[i]));
+	// 		for (int k = 0; k < 8; k++) {
+	// 			int palette_index = (x[k] << 1) + y[k];
+	// 			if (palette_index == 0) {
+	// 				std::cout << ANSI_COLOR_GREEN;
+	// 			}
+	// 			if (palette_index == 1) {
+	// 				std::cout << ANSI_COLOR_BLUE;
+	// 			}
+	// 			if (palette_index == 2) {
+	// 				std::cout << ANSI_COLOR_RED;
+	// 			}
+	// 			if (palette_index == 3) {
+	// 				std::cout << ANSI_COLOR_YELLOW;
+	// 			}
+	// 			std::cout << "◼" << " " << ANSI_COLOR_RESET;;
+	// 		}
+	// 		std::cout << std::endl;
+	// 	}
+	// }
 
 	// for (int i = 0; i < FLOWER + 6; i ++) {
 	// 	std::cout << "Palette : " << int(ppu.sprites[i].attributes) << std::endl;
 	// 	std::cout << "Tile : " << int(ppu.sprites[i].index) << std::endl;
 	// }
 
-	for (PPU466::Palette palette : palette_table)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				std::cout << int(palette[j][i]) << " ";
-			}
-			std::cout << std::endl;
-		}
-		std::cout << "=========================" << std::endl;
-	}
+	// for (PPU466::Palette palette : palette_table)
+	// {
+	// 	for (int j = 0; j < 4; j++)
+	// 	{
+	// 		for (int i = 0; i < 4; i++)
+	// 		{
+	// 			std::cout << int(palette[j][i]) << " ";
+	// 		}
+	// 		std::cout << std::endl;
+	// 	}
+	// 	std::cout << "=========================" << std::endl;
+	// }
 }
 
 GameMode::~GameMode()

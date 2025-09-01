@@ -8,13 +8,13 @@
 #include "read_write_chunk.hpp"
 
 #include <bitset>
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_RED "\x1b[31m"
+#define ANSI_COLOR_GREEN "\x1b[32m"
+#define ANSI_COLOR_YELLOW "\x1b[33m"
+#define ANSI_COLOR_BLUE "\x1b[34m"
 #define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
+#define ANSI_COLOR_CYAN "\x1b[36m"
+#define ANSI_COLOR_RESET "\x1b[0m"
 
 // Define the indexes in a colour
 constexpr int RED = 0;
@@ -30,13 +30,7 @@ void PPM_Parser::parse_chunk(std::string const &filename)
     PPU466::Palette palette;
 
     // Tile this image will be represented as
-    PPU466::Tile tile;
-
-    // Scrambling palette so black can be registered
-    palette[0][0] = 0xff;
-    palette[1][0] = 0xff;
-    palette[2][0] = 0xff;
-    palette[3][0] = 0xff;
+    PPU466::Tile tile = {0};
 
     // Set all alpha colours to 0. If alpha is 0
     // the colour hasn't yet been set in this palette
@@ -179,31 +173,37 @@ void PPM_Parser::parse_chunk(std::string const &filename)
     }
 
     for (int i = 7; i >= 0; i--)
-		{
-			std::bitset<8> x(int(tile.bit1[i]));
-			std::bitset<8> y(int(tile.bit0[i]));
-			for (int k = 0; k < 8; k++) {
-				int palette_index = (x[k] << 1) + y[k];
-				if (palette_index == 0) {
-					std::cout << ANSI_COLOR_GREEN;
-				}
-				if (palette_index == 1) {
-					std::cout << ANSI_COLOR_BLUE;
-				}
-				if (palette_index == 2) {
-					std::cout << ANSI_COLOR_RED;
-				}
-				if (palette_index == 3) {
-					std::cout << ANSI_COLOR_MAGENTA;
-				}
-				// std::cout << x[k] << y[k] << " " << ANSI_COLOR_RESET;
-				std::cout << "◼" << " " << ANSI_COLOR_RESET;;
-			}
-			std::cout << "Row : " << i <<std::endl;
-		}
+    {
+        std::bitset<8> x(int(tile.bit1[i]));
+        std::bitset<8> y(int(tile.bit0[i]));
+        for (int k = 0; k < 8; k++)
+        {
+            int palette_index = (x[k] << 1) + y[k];
+            if (palette_index == 0)
+            {
+                std::cout << ANSI_COLOR_GREEN;
+            }
+            if (palette_index == 1)
+            {
+                std::cout << ANSI_COLOR_BLUE;
+            }
+            if (palette_index == 2)
+            {
+                std::cout << ANSI_COLOR_RED;
+            }
+            if (palette_index == 3)
+            {
+                std::cout << ANSI_COLOR_YELLOW;
+            }
+            // std::cout << x[k] << y[k] << " " << ANSI_COLOR_RESET;
+            std::cout << "◼" << " " << ANSI_COLOR_RESET;
+            ;
+        }
+        std::cout << "Row : " << i << std::endl;
+    }
 
     // Constructing the tile ref for our new tile
-    Sprite::TileRef tile_ref;
+    Sprite::TileRef tile_ref = {0};
     tile_ref.palette_index = palette_index;
     std::cout << "Palette : " << palette_index << std::endl;
     tile_ref.tile_index = tile_table.size();
@@ -261,59 +261,71 @@ void PPM_Parser::parse_image(std::string const &filename, std::string const &out
         if (pixels_seen >= chunk_size)
         {
             lines_passed += 1;
-            // Number of pixels until new line in chunk
-            uint8_t pixels_to_chunk = width - chunk_size;
-            // Navigate to new chunk line
-            while (pixels_to_chunk > 0 && in_file >> R >> G >> B)
-            {
-                pixels_to_chunk--;
-            }
-            pixels_seen = 0;
+
             // std::cout << "Going to new chunk line" << std::endl;
-        }
-        if (lines_passed >= chunk_size)
-        {
-            // std::cout << "Parsing chunk !!" << std::endl << std::endl;
-            parse_chunk(output_file);
-
-            tile_refs.back().offset_x_chunk = chunks_parsed_row;
-            // The file is read from top left to bottom right
-            // but the sprite is displayed from bottom left to top right
-            tile_refs.back().offset_y_chunk = height - chunks_parsed_column;
-            // std::cout << "Done parsing chunk !!" << std::endl << std::endl;
-
-            chunks_parsed_row += 1;
-            lines_passed = 0;
-
-            // Empty all the text from the output file to make space for the new chunk.
-            out_file.close();
-            std::remove(output_file.c_str());
-            out_file.open(output_file, std::ios_base::app);
-
-            // Don't need to move the cursor if we've just finished a line
-            if (chunks_parsed_row != chunks_in_row)
+            if (lines_passed >= chunk_size)
             {
-                // Re-open the file and start from the begining
-                in_file.close();
-                in_file.open(filename);
+                lines_passed = 0;
 
-                char trash[2];
-                in_file.read(trash, 2); // Read the header of the ppm file (P3)
+                // std::cout << "Parsing chunk !!" << std::endl << std::endl;
+                parse_chunk(output_file);
 
-                int width, height, colours;
-                in_file >> width >> height >> colours;
+                tile_refs.back().offset_x_chunk = chunks_parsed_row;
+    
+                // The file is read from top left to bottom right
+                // but the sprite is displayed from bottom left to top right
+                tile_refs.back().offset_y_chunk = chunks_in_column - 1 - chunks_parsed_column;
+                
+                chunks_parsed_row += 1;
 
+                std::cout << tile_refs.back().offset_x_chunk << std::endl;
+                std::cout << tile_refs.back().offset_y_chunk << std::endl;
+                // std::cout << "Done parsing chunk !!" << std::endl << std::endl;
+
+                // Empty all the text from the output file to make space for the new chunk.
+                out_file.close();
+                std::remove(output_file.c_str());
+                out_file.open(output_file, std::ios_base::app);
+
+                // Don't need to move the cursor if we've just finished a line
+                if (chunks_parsed_row != chunks_in_row)
+                {
+                    // Re-open the file and start from the begining
+                    in_file.close();
+                    in_file.open(filename);
+
+                    char trash[2];
+                    in_file.read(trash, 2); // Read the header of the ppm file (P3)
+                    std::cout << trash << std::endl;
+
+                    int width, height, colours;
+                    in_file >> width >> height >> colours;
+                    std::cout << width << " " << height << " " << colours << std::endl;
+
+                    // Number of pixels until new line in chunk
+                    uint8_t pixels_to_chunk = width * chunks_parsed_column + chunk_size * chunks_parsed_row;
+
+                    // Navigate to new chunk line
+                    while (pixels_to_chunk > 0 && in_file >> R >> G >> B)
+                    {
+                        pixels_to_chunk--;
+                    }
+
+                    // std::cout << "Going to new chunk " << int(chunks_parsed_row) << std::endl;
+                }
+            }
+            else
+            {
                 // Number of pixels until new line in chunk
-                uint8_t pixels_to_chunk = width * chunks_parsed_column + chunk_size * chunks_parsed_row;
-
+                uint8_t pixels_to_chunk = width - pixels_seen;
                 // Navigate to new chunk line
                 while (pixels_to_chunk > 0 && in_file >> R >> G >> B)
                 {
                     pixels_to_chunk--;
                 }
-
-                // std::cout << "Going to new chunk " << int(chunks_parsed_row) << std::endl;
             }
+
+            pixels_seen = 0;
         }
         if (chunks_parsed_row >= chunks_in_row)
         {
