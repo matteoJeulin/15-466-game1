@@ -40,9 +40,3 @@ Sprites Sprites::load(std::string const &filename)
 Sprite const &Sprites::lookup(std::string const &name) {
     return sprites.at(name);
 }
-
-// int main()
-// {
-//     Sprite sprite;
-//     sprite.load("parsing/sprites/player.ppu");
-// }

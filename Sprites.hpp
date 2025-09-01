@@ -5,9 +5,11 @@
 #include <map>
 #include <vector>
 
-struct Sprite {
+struct Sprite
+{
 
-    struct TileRef {
+    struct TileRef
+    {
         uint16_t tile_index = 0;
         uint16_t palette_index = 0;
         // Position relative to the bottom left tile in the sprite (in chunks)
@@ -16,7 +18,7 @@ struct Sprite {
     };
     static_assert(sizeof(TileRef) == 8, "TileRef doesn't contain padding bytes.");
 
-    std::vector< TileRef > tiles;
+    std::vector<TileRef> tiles;
 
     std::string name;
 
@@ -29,12 +31,12 @@ struct Sprite {
 
 struct Sprites
 {
-    // Look up a specific sprite by name  and 
+    // Look up a specific sprite by name  and
     // return a reference to it (or throw an error if failure)
     Sprite const &lookup(std::string const &name);
-    
+
     // Load sprites from the given filepath
     static Sprites load(std::string const &filename);
 
-    std::map< std::string, Sprite > sprites;
+    std::map<std::string, Sprite> sprites;
 };
