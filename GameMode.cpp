@@ -67,6 +67,25 @@ constexpr int FLOWER = 7;
 
 GameMode::GameMode()
 {
+	// Updating palette table and tile table
+	std::vector<PPU466::Palette> palette_table;
+	std::vector<PPU466::Tile> tile_table;
+
+	std::ifstream file(data_path("../parsing/tables.ppu"));
+
+	read_chunk(file, "tile", &tile_table);
+	read_chunk(file, "palt", &palette_table);
+
+	for (size_t i = 0; i < palette_table.size(); i++)
+	{
+		ppu.palette_table[i] = palette_table[i];
+	}
+
+	for (size_t i = 0; i < tile_table.size(); i++)
+	{
+		ppu.tile_table[i] = tile_table[i];
+	}
+
 	// Put all the game sprites into the sprite table
 	ppu.sprites[PLAYER].index = sprites.value->sprites.at("player").tiles[0].tile_index;
 	ppu.sprites[PLAYER].attributes = sprites.value->sprites.at("player").tiles[0].palette_index;
@@ -98,35 +117,17 @@ GameMode::GameMode()
 		ppu.sprites[FLOWER + nb_tiles].y = 240;
 		nb_tiles++;
 	}
-	int i = 0;
-	for (uint16_t &value : ppu.background)
+	// int i = 0;
+	for (unsigned int i = 0; i < ppu.BackgroundWidth * ppu.BackgroundHeight; i++)
 	{
-		value = i + (0 << 3);
+		ppu.background[i] = 12 + (4 << 8);
+		std::cout << ppu.background[i] << std::endl;
 		// std::cout << sprites.value->sprites.at("background").tiles[0].tile_index << std::endl;
-		i = (i + 1) % 13;
-	}
-
-	// Updating palette table and tile table
-	std::vector<PPU466::Palette> palette_table;
-	std::vector<PPU466::Tile> tile_table;
-
-	std::ifstream file(data_path("../parsing/tables.ppu"));
-
-	read_chunk(file, "tile", &tile_table);
-	read_chunk(file, "palt", &palette_table);
-
-	for (size_t i = 0; i < palette_table.size(); i++)
-	{
-		ppu.palette_table[i] = palette_table[i];
-	}
-
-	for (size_t i = 0; i < tile_table.size(); i++)
-	{
-		ppu.tile_table[i] = tile_table[i];
+		// i = (i + 1) % 13;
 	}
 
 	for (size_t j = 0; j < 13; j ++){
-
+		std::cout << " Tile : " << j << std::endl;
 		for (int i = 7; i >= 0; i--)
 		{
 			std::bitset<8> x(int(ppu.tile_table[j].bit1[i]));
@@ -150,7 +151,6 @@ GameMode::GameMode()
 			}
 			std::cout << std::endl;
 		}
-		std::cout << " Tile : " << j <<  "==================" << std::endl;
 	}
 
 	// for (int i = 0; i < FLOWER + 6; i ++) {
@@ -158,18 +158,18 @@ GameMode::GameMode()
 	// 	std::cout << "Tile : " << int(ppu.sprites[i].index) << std::endl;
 	// }
 
-	// for (PPU466::Palette palette : palette_table)
-	// {
-	// 	for (int j = 0; j < 4; j++)
-	// 	{
-	// 		for (int i = 0; i < 4; i++)
-	// 		{
-	// 			std::cout << int(palette[j][i]) << " ";
-	// 		}
-	// 		std::cout << std::endl;
-	// 	}
-	// 	std::cout << "=========================" << std::endl;
-	// }
+	for (PPU466::Palette palette : palette_table)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				std::cout << int(palette[j][i]) << " ";
+			}
+			std::cout << std::endl;
+		}
+		std::cout << "=========================" << std::endl;
+	}
 }
 
 GameMode::~GameMode()
@@ -283,8 +283,8 @@ void GameMode::draw(glm::uvec2 const &drawable_size)
 	// ppu.background_position.y = int32_t(-0.5f * player_at.y);
 
 	// player sprite:
-	ppu.sprites[0].x = int8_t(player_at.x);
-	ppu.sprites[0].y = int8_t(player_at.y);
+	ppu.sprites[PLAYER].x = int8_t(player_at.x);
+	ppu.sprites[PLAYER].y = int8_t(player_at.y);
 	// ppu.sprites[0].index = 32;
 	// ppu.sprites[0].attributes = 7;
 
