@@ -23,11 +23,14 @@ struct GameMode : Mode {
 		uint8_t pressed = 0;
 	} left, right, down, up;
 
-	//some weird background animation:
-	float background_fade = 0.0f;
+	// Vector containing all the indexes of the first tile of all
+	// flower sprites in the tile table
+	std::vector<int> flowers;
 
 	//player position:
 	glm::vec2 player_at = glm::vec2(0.0f);
+
+	glm::vec2 player_size = glm::vec2(8, 8);
 
 	//----- drawing handled by PPU466 -----
 

@@ -22,10 +22,6 @@ Sprite Sprite::load(std::string const &filename)
     return sprite;
 }
 
-void Sprite::draw(int32_t x, int32_t y) const {
-
-}
-
 Sprites Sprites::load(std::string const &filename)
 {
     Sprites ret;

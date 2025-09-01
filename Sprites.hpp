@@ -22,9 +22,6 @@ struct Sprite
 
     std::string name;
 
-    // Draw sprite with origin at x,y
-    void draw(int32_t x, int32_t y) const;
-
     // Load sprite from the given filepath
     static Sprite load(std::string const &filename);
 };
