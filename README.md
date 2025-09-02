@@ -15,6 +15,8 @@ Transparency is supported by colouring the transparent part of the image in mage
 Finally, a tile reference is created for the tile containing an index to the palette containing the colours to draw it and an index to its tile representation in the tile table. It also contains its position (in chunks) relative to the bottom left tile in its sprite. The tile table and palette table are stored in parsing/tables.ppu using the write_chunk function and all the tile refs have their own .ppu file (one file per sprite so a single file can contain multiple tile refs) in the parsing/sprites directory.
 When a GameMode is created, the tile table and palette table are loaded to the PPU and some useful sprites are loaded to the sprite table using read_chunk.
 
+To run the pipeline, compile the code using Maekfile.js and run parsing/parse_ppm. This will parse all the sprites in the sprite directory.
+
 All the source file drawings can be found in the sprites folder. 
 
 How To Play:
