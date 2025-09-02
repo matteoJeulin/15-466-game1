@@ -19,9 +19,8 @@ struct GameMode : Mode {
 
 	//input tracking:
 	struct Button {
-		uint8_t downs = 0;
 		uint8_t pressed = 0;
-	} left, right, down, up;
+	} left, right, down, up, space;
 
 	// Vector containing all the indexes of the first tile of all
 	// flower sprites in the tile table

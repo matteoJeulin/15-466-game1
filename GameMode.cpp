@@ -108,8 +108,8 @@ void GameMode::setup_map(uint8_t nb_flowers, uint8_t nb_puddles, uint16_t death_
 	for (int i = 0; i < nb_flowers; i++)
 	{
 		flowers.push_back(nb_tiles);
-		int flower_x = rand() % 256;
-		int flower_y = rand() % 241;
+		int flower_x = rand() % (256 - 3 * tile_size);
+		int flower_y = rand() % (240 - 2 * tile_size);
 		for (Sprite::TileRef tile_ref : flower->tiles)
 		{
 			ppu.sprites[nb_tiles].index = tile_ref.tile_index;
@@ -123,8 +123,8 @@ void GameMode::setup_map(uint8_t nb_flowers, uint8_t nb_puddles, uint16_t death_
 	for (int i = 0; i < nb_puddles; i++)
 	{
 		void_puddles.push_back(nb_tiles);
-		int puddle_x = rand() % 256;
-		int puddle_y = rand() % 241;
+		int puddle_x = rand() % (256 - 2 * tile_size);
+		int puddle_y = rand() % (240 - 2 * tile_size);
 		for (Sprite::TileRef tile_ref : void_puddle->tiles)
 		{
 			ppu.sprites[nb_tiles].index = tile_ref.tile_index;
@@ -185,6 +185,11 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			down.pressed = true;
 			return true;
 		}
+		else if (evt.key.key == SDLK_SPACE)
+		{
+			space.pressed = true;
+			return true;
+		}
 	}
 	else if (evt.type == SDL_EVENT_KEY_UP)
 	{
@@ -206,6 +211,11 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		else if (evt.key.key == SDLK_DOWN)
 		{
 			down.pressed = false;
+			return true;
+		}
+		else if (evt.key.key == SDLK_SPACE)
+		{
+			space.pressed = false;
 			return true;
 		}
 	}
@@ -247,6 +257,12 @@ void GameMode::update(float elapsed)
 	{
 		ppu.sprites[PLAYER].index = player_idle->tiles[0].tile_index;
 		ppu.sprites[PLAYER].attributes = player_idle->tiles[0].palette_index;
+	}
+
+	if (space.pressed)
+	{
+		round = 0;
+		setup_map(default_flowers, default_puddles, default_death_time);
 	}
 
 	// Make sure the player does not leave the screen
@@ -291,10 +307,10 @@ void GameMode::update(float elapsed)
 			// If the player collides with a puddle tile, move the whole puddle offscreen and add time to counter
 			if (colide(player_at.x, player_at.y, player_size, ppu.sprites[puddle_index + i].x, ppu.sprites[puddle_index + i].y, tile_size))
 			{
-				for (size_t collided_puddle_index = puddle_index; collided_puddle_index - puddle_index < flower->tiles.size(); collided_puddle_index++)
+				for (size_t collided_puddle_index = puddle_index; collided_puddle_index - puddle_index < void_puddle->tiles.size(); collided_puddle_index++)
 				{
-
 					ppu.sprites[collided_puddle_index].y = 240;
+					current_puddles--;
 					death_timer += 60 * 2;
 				}
 				break;
