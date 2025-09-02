@@ -102,6 +102,9 @@ void GameMode::setup_map(uint8_t nb_flowers, uint8_t nb_puddles, uint16_t death_
 	current_puddles = nb_puddles;
 	death_timer = death_time;
 
+	flowers = {};
+	void_puddles = {};
+
 	srand((unsigned)time(NULL));
 
 	int nb_tiles = FLOWER;
