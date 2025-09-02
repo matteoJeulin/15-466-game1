@@ -27,7 +27,7 @@ void PPM_Parser::parse_chunk(std::string const &filename)
     std::ifstream file(filename);
 
     // Palette for this sprite
-    PPU466::Palette palette;
+    PPU466::Palette palette = {};
 
     // Tile this image will be represented as
     PPU466::Tile tile = {0};
@@ -79,7 +79,8 @@ void PPM_Parser::parse_chunk(std::string const &filename)
                 palette[colours_registered][RED] = R;
                 palette[colours_registered][GREEN] = G;
                 palette[colours_registered][BLUE] = B;
-                palette[colours_registered][ALPHA] = 0xff;
+                // If it is magenta, set alpha to 0
+                palette[colours_registered][ALPHA] = (R == 0xff && G == 0 && B == 0xff) ? 0 : 0xff;
 
                 colours_registered++;
             }
@@ -97,27 +98,32 @@ void PPM_Parser::parse_chunk(std::string const &filename)
                 // If the colour we are checking has an alpha channel that is null,
                 // it means we found all the previous colours of palette in the other
                 // palette and that palette is contained in the other palette.
-                if (colour[ALPHA] == 0)
+                // If the colour is magenta, allow it to be transparent.
+                if (colour[ALPHA] == 0 && (colour[RED] != 0xff || colour[GREEN] != 0 || colour[BLUE] != 0xff))
                 {
                     nb_colours_found = palette.size();
                     palette = palette_table[i];
                     break;
                 }
                 bool colour_found = false;
+                int colour_index = 0;
                 for (glm::u8vec4 &registered_colour : palette_table[i])
                 {
                     if (colour[RED] == registered_colour[RED] && colour[GREEN] == registered_colour[GREEN] && colour[BLUE] == registered_colour[BLUE] && colour[ALPHA] == registered_colour[ALPHA])
                     {
                         colour_found = true;
-                        colour[ALPHA] = 0xff;
                         break;
                     }
-                    // if (registered_colour[ALPHA] == 0) {
-                    //     colour[ALPHA] = 0xff;
-                    //     registered_colour = colour;
-                    //     colour_found = true;
-                    //     break;
-                    // }
+                    // If there is space in a registered palette, add your colours to it
+                    // But only if the rest of palette can fit
+                    if (nb_colours_found >= colour_index && registered_colour[ALPHA] == 0 && (registered_colour[RED] != 0xff || registered_colour[GREEN] != 0 || registered_colour[BLUE] != 0xff))
+                    {
+                        colour[ALPHA] = 0xff;
+                        registered_colour = colour;
+                        colour_found = true;
+                        break;
+                    }
+                    colour_index ++;
                 }
                 if (!colour_found)
                 {
@@ -316,4 +322,5 @@ int main()
 {
     PPM_Parser parser;
     parser.parse_directory("./sprites");
+    // parser.parse_image("./sprites/flower.ppm", "parsing/tmp_chunk.txt");
 }
